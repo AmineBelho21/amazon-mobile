@@ -1,3 +1,4 @@
+import CustomTabBar from '@/components/navigation/CustomTabBar'
 import { StyledTabs } from '@/components/navigation/tabs'
 import { Ionicons } from '@expo/vector-icons'
 import { Tabs } from 'expo-router'
@@ -6,7 +7,7 @@ import { Text, View } from 'react-native'
 
 const Layout = () => {
   return (
-    <StyledTabs headerClassName="bg-dark text-white" >
+    <StyledTabs headerClassName="bg-dark text-white" tabBar={(props) => <CustomTabBar {...props} />} >
         <Tabs.Screen
         name="index"
         options={{
