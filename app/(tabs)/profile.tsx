@@ -1,4 +1,4 @@
-import { SignedOut } from '@clerk/clerk-expo'
+import { SignedIn, SignedOut } from '@clerk/clerk-expo'
 import { Link } from 'expo-router'
 import React from 'react'
 import { Text, TouchableOpacity, View } from 'react-native'
@@ -18,6 +18,14 @@ const Page = () => {
           </Link>
         </View>
         </SignedOut>
+
+        <SignedIn>
+        <View className="pt-10 px-8 items-center">
+          <View className="pt-10 px-8 items-center">
+            <Text className="text-3xl text-center">You are signed in</Text> 
+          </View>
+        </View>
+      </SignedIn>
     </View>
   )
 }

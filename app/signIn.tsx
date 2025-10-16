@@ -1,9 +1,9 @@
-import { useSignIn, useSignUp } from '@clerk/clerk-expo';
+import { isClerkAPIResponseError, useSignIn, useSignUp } from '@clerk/clerk-expo';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { KeyboardAvoidingView, Platform, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, KeyboardAvoidingView, Platform, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { z } from 'zod';
 
 const signInSchema = z.object({
@@ -29,10 +29,46 @@ const Page = () => {
 
 
     const onSubmit = async (data: SignInForm) => {
-        
+        if(!isLoaded) return;
+        try {
+            const signInAttempt = await signIn.create({
+                identifier: data.email,
+                password: data.password
+            })
+
+            if(signInAttempt.status === 'complete') {
+                await setActive({ session: signInAttempt.createdSessionId});
+                router.dismissTo('/(tabs)/profile')
+            } else {
+                console.error(JSON.stringify(signInAttempt, null, 2))
+            } 
+        } catch (error) {
+            console.error(JSON.stringify(error, null, 2))
+            if (isClerkAPIResponseError(error)) {
+                const errors = error.errors;
+                if (errors[0].code === 'form_identifier_not_found') {
+                    createAccount(data);
+                  } else {
+                    Alert.alert('Error', 'An error occurred while signing in');
+                  }
+            }
+        }
     }
 
-    const createAccount = async (data: SignInForm) => { }
+    const createAccount = async (data: SignInForm) => {
+        if (!isLoadedSignUp) return;
+
+        try {
+            await signUp.create({
+                emailAddress: data.email, 
+                password: data.password
+            });
+
+            router.dismissTo('/(tabs)/profile')
+        } catch (error) {
+            console.error(JSON.stringify(error, null, 2))
+        }
+     }
 
     const signInWithPasskey = async () => { }
 
@@ -100,6 +136,16 @@ const Page = () => {
                     <Text className="text-lg font-medium text-black">Sign in</Text>
                 </TouchableOpacity>
 
+                <View className="flex-row items-center mb-4">
+                    <View className="flex-1 h-px bg-gray-300" />
+                    <Text className="mx-2 text-gray-500">Or</Text>
+                    <View className="flex-1 h-px bg-gray-300" />
+                </View>
+                <TouchableOpacity
+                    className="border border-gray-400 rounded-full py-3 items-center mb-6 bg-white"
+                    onPress={signInWithPasskey}>
+                    <Text className="text-lg font-medium text-black">Sign in with a passkey</Text>
+                </TouchableOpacity>
             </View>
         </KeyboardAvoidingView>
     )
