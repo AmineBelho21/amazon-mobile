@@ -1,11 +1,13 @@
 import CustomTabBar from '@/components/navigation/CustomTabBar'
 import { StyledTabs } from '@/components/navigation/tabs'
 import { Ionicons } from '@expo/vector-icons'
-import { Tabs } from 'expo-router'
+import { Tabs, useRouter } from 'expo-router'
 import React from 'react'
 import { Text, View } from 'react-native'
 
 const Layout = () => {
+  const router = useRouter();
+  
   return (
     <StyledTabs headerClassName="bg-dark text-white" tabBar={(props) => <CustomTabBar {...props} />} >
         <Tabs.Screen
@@ -49,11 +51,13 @@ const Layout = () => {
       />
       <Tabs.Screen
         name="rufus"
-        options={{
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="person-outline" color={color} size={size} />
-          ),
-        }}
+        listeners={() => ({
+          tabPress: (e) => {
+            e.preventDefault();
+            router.push('/(modal)/rufus')
+          }
+        })}
+
       />
     </StyledTabs>
   )
