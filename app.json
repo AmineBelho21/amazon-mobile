@@ -13,7 +13,10 @@
       "bundleIdentifier": "com.anonymous.amazonmobile",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
-        "NSAllowsArbitraryLoads": true
+        "NSAllowsArbitraryLoads": true, 
+        "UIBackgroundModes": ["voip"],
+        "NSCameraUsageDescription": "This app uses the camera to let user put a photo in his profile page.",
+        "NSMicrophoneUsageDescription": "This app uses the microphone to let user make a call."
       }
     },
     "android": {
@@ -46,7 +49,8 @@
         }
       ],
       "expo-build-properties",
-      "expo-secure-store"
+      "expo-secure-store",
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true,

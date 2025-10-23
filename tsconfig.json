@@ -6,7 +6,11 @@
       "@/*": [
         "./*"
       ]
-    }
+    }, 
+    "types": ["@types/react", "@types/react-native"],
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true
   },
   "include": [
     "**/*.ts",
