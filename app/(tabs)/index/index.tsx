@@ -1,27 +1,81 @@
-import { useEffect, useState } from "react";
-import { Text, View } from "react-native";
+import { getArticles } from "@/utils/api";
+import { Ionicons } from "@expo/vector-icons";
+import { useQuery } from "@tanstack/react-query";
+import { cssInterop } from "nativewind";
+import React from "react";
+import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from "react-native";
+
+
+cssInterop(Ionicons, {
+  className: {
+    target: false, 
+    nativeStyleToProp: {
+      color: true
+    }
+  }
+}
+)
+
+const dummyHeros = [
+  {
+    text: 'Home when you are away',
+    color: '#0000ff',
+  },
+  {
+    text: 'New tech, new possibilities',
+    color: '#00ff00',
+  },
+];
 
 export default function Index() {
 
-  const [data, setData] = useState<any>(null);
-  const API_URL = process.env.EXPO_PUBLIC_API_URL;
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ['articles'],
+    queryFn: getArticles
+  })
 
-  useEffect(() => {
-    fetch(`${API_URL}/articles`)
-    .then(response => response.json())
-    .then(data => {
-      console.log(data);
-      setData(data);
-    })
-    .catch(error => {
-      console.error(error);
-    });
-  }, []);
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size='large'>
+          <Text>Loading articles ...</Text>
+        </ActivityIndicator>
+      </View>
+    )
+  }
+
+  if (isError) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size='large'>
+          <Text>Error loading articles: {error instanceof Error ? error.message : 'Unknown '}</Text>
+        </ActivityIndicator>
+      </View>
+    )
+  }
+
 
   return (
-    <View className="flex-1 justify-center items-center">
-      <Text className="color-red-500">Edit tshehe to edit this screen.</Text>
-      {data && <Text className="color-blue-500">{JSON.stringify(data)}</Text>}
-    </View>
+    <>
+      <ScrollView 
+        horizontal 
+        showsHorizontalScrollIndicator={false} 
+        contentContainerClassName="flex-1 flex-row items-center p-4 gap-6"
+        className='absolute top-0 bg-dark h-14 w-full'
+        >
+        <View className="flex-row items-center">
+          <Ionicons name="location-outline" size={20} className="text-white" />
+          <Text className="text-white text-lg font-bold">dddxz</Text>
+        </View>
+        {['Alexa Lists', 'Prime', 'Video', 'Music'].map(item => (
+          <TouchableOpacity key={item}>
+            <Text className="text-white text-md font-semibold">
+              {item}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+    </>
+
   );
 }
