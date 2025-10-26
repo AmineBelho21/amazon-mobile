@@ -11,7 +11,7 @@ const Layout = () => {
   return (
     <StyledTabs headerClassName="bg-dark text-white" tabBar={(props) => <CustomTabBar {...props} />} >
         <Tabs.Screen
-        name="index"
+        name="(index)"
         options={{
           headerShown: false,
           title: 'Home',
