@@ -3,11 +3,8 @@
   "compilerOptions": {
     "strict": true,
     "paths": {
-      "@/*": [
-        "./*"
-      ]
-    }, 
-    "types": ["@types/react", "@types/react-native"],
+      "@/*": ["./*"]
+    },
     "skipLibCheck": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true
