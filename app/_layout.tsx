@@ -4,9 +4,9 @@ import { ClerkLoaded, ClerkProvider } from '@clerk/clerk-expo';
 import { tokenCache } from '@clerk/clerk-expo/token-cache';
 import { Ionicons } from '@expo/vector-icons';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Stack, useRouter } from "expo-router";
 import { TouchableOpacity, useColorScheme } from 'react-native';
-
 
 const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!;
 if (!publishableKey) {
@@ -14,6 +14,16 @@ if (!publishableKey) {
     'Missing Publishable Key. Please set EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY in your .env'
   );
 }
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false, 
+      staleTime: 1000 * 60 * 5,
+    }
+  }
+});
+
 const InitialLayout = () => {
   const router = useRouter();
 
@@ -63,10 +73,11 @@ const RootLayout = () => {
   return (
     <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
       <ClerkLoaded>
+        <QueryClientProvider client={queryClient}>
         <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
           <InitialLayout />
         </ThemeProvider>
-
+        </QueryClientProvider>
       </ClerkLoaded>
     </ClerkProvider>
   );
