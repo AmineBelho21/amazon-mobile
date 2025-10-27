@@ -4,7 +4,8 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "expo-router";
 import { cssInterop } from "nativewind";
 import React from "react";
-import { ActivityIndicator, Dimensions, FlatList, Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Animated, Dimensions, FlatList, Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from "react-native-reanimated";
 
 
 cssInterop(Ionicons, {
@@ -35,6 +36,25 @@ export default function Index() {
     queryFn: getArticles
   })
 
+  const scrollOffset = useSharedValue(0);
+  const scrollHandler = useAnimatedScrollHandler({
+    onScroll: (event) => {
+      if (event.contentOffset.y > 50) {
+        scrollOffset.value = 50 - event.contentOffset.y;
+      }
+      else {
+        scrollOffset.value = 0
+      }
+    }
+  });
+
+  const scrollStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ translateY: scrollOffset.value}]
+    }
+  })
+
+
   if (isLoading) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -58,11 +78,12 @@ export default function Index() {
 
   return (
     <>
-      <ScrollView 
+      <Animated.ScrollView 
         horizontal 
         showsHorizontalScrollIndicator={false} 
         contentContainerClassName="flex-1 flex-row items-center p-4 gap-6"
         className='absolute top-0 bg-dark h-14 w-full'
+        style={scrollStyle}
         >
         <View className="flex-row items-center">
           <Ionicons name="location-outline" size={20} className="text-white" />
@@ -75,9 +96,10 @@ export default function Index() {
             </Text>
           </TouchableOpacity>
         ))}
-      </ScrollView>
+      </Animated.ScrollView>
 
-      <FlatList 
+      <Animated.FlatList 
+        scrollEventThrottle={16}
         data={[1]}
         style={{ zIndex: -1 }}
         contentContainerStyle={{ paddingTop: 48}}
@@ -114,7 +136,7 @@ export default function Index() {
                   <Text className="text-2xl font-bold mb-4">Top picks for you</Text>
                 )}
                 renderItem={({ item }) => (
-                  <Link href={`/(tabs)/${item.id}`} asChild style={{ marginBottom: 10 }}>
+                  <Link href={`/(tabs)/${item.id}`} asChild style={{ marginBottom: 4 }}>
                     <TouchableOpacity className="flex-row items-center gap-4 flex-wrap">
                       <Image source={{ uri: item.imageUrl }} className="rounded-lg w-28 h-28" />
                       <View className="flex-1">
