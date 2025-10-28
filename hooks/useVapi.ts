@@ -17,6 +17,8 @@ import { useEffect, useState } from 'react';
     ACTIVE = 'ACTIVE',
     FINISHED = 'FINISHED',
   }
+
+  export const VAPI_OVERLAY_ID = 'vapi.overlay';
   
   export function useVapi() {
     const [callStatus, setCallStatus] = useState<CALL_STATUS>(CALL_STATUS.INACTIVE);

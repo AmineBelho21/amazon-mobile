@@ -1,11 +1,27 @@
+import amazonLogo from '@/assets/images/amazon-logo-white.png'
 import { SignedIn, SignedOut } from '@clerk/clerk-expo'
-import { Link } from 'expo-router'
+import { Ionicons } from '@expo/vector-icons'
+import { Link, Stack } from 'expo-router'
 import React from 'react'
-import { Text, TouchableOpacity, View } from 'react-native'
+import { Image, Text, TouchableOpacity, View } from 'react-native'
 
 const Page = () => {
   return (
     <View className='flex-1'>
+      <Stack.Screen
+        options={{
+          headerShown: true,
+          headerLeft: () => (
+            <Image source={amazonLogo} style={{ width: 100, height: 30, paddingLeft: 12 }} />
+          ),
+          headerRight: () => (
+            <View className="flex-row items-center gap-6 pr-4">
+              <Ionicons name="settings-outline" size={24} color="white" />
+              <Ionicons name="search-outline" size={24} color="white" />
+            </View>
+          ),
+        }}
+      />
         <SignedOut>
             <View className='pt-10 px-8 items-center'>
                 <Text className="text-3xl text-center">Sign in for the optimal experience</Text>

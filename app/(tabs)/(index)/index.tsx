@@ -1,3 +1,5 @@
+import VapiOverlay from "@/components/VapiOverlay";
+import { VAPI_OVERLAY_ID } from "@/hooks/useVapi";
 import { getArticles } from "@/utils/api";
 import { Ionicons } from "@expo/vector-icons";
 import { useQuery } from "@tanstack/react-query";
@@ -5,6 +7,7 @@ import { Link } from "expo-router";
 import { cssInterop } from "nativewind";
 import React from "react";
 import { ActivityIndicator, Animated, Dimensions, FlatList, Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { useMMKVBoolean } from "react-native-mmkv";
 import { useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from "react-native-reanimated";
 
 
@@ -35,6 +38,9 @@ export default function Index() {
     queryKey: ['articles'],
     queryFn: getArticles
   })
+
+  const [showOverlay, setShowOverlay] = useMMKVBoolean(VAPI_OVERLAY_ID)
+
 
   const scrollOffset = useSharedValue(0);
   const scrollHandler = useAnimatedScrollHandler({
@@ -78,6 +84,7 @@ export default function Index() {
 
   return (
     <>
+    {showOverlay && <VapiOverlay />}
       <Animated.ScrollView 
         horizontal 
         showsHorizontalScrollIndicator={false} 
