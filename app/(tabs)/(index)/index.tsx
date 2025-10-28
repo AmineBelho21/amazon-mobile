@@ -1,25 +1,27 @@
-import VapiOverlay from "@/components/VapiOverlay";
-import { VAPI_OVERLAY_ID } from "@/hooks/useVapi";
-import { getArticles } from "@/utils/api";
-import { Ionicons } from "@expo/vector-icons";
-import { useQuery } from "@tanstack/react-query";
-import { Link } from "expo-router";
-import { cssInterop } from "nativewind";
-import React from "react";
-import { ActivityIndicator, Animated, Dimensions, FlatList, Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
-import { useMMKVBoolean } from "react-native-mmkv";
-import { useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from "react-native-reanimated";
-
-
-cssInterop(Ionicons, {
-  className: {
-    target: false, 
-    nativeStyleToProp: {
-      color: true
-    }
-  }
-}
-)
+import VapiOverlay from '@/components/VapiOverlay';
+import { VAPI_OVERLAY_ID } from '@/hooks/useVapi';
+import { storage } from '@/storage/mmkv';
+import { getArticles } from '@/utils/api';
+import { Ionicons } from '@expo/vector-icons';
+import { useHeaderHeight } from '@react-navigation/elements';
+import { useQuery } from '@tanstack/react-query';
+import { Link } from 'expo-router';
+import React, { useState } from 'react';
+import {
+  ActivityIndicator,
+  Dimensions,
+  FlatList,
+  Image,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import Animated, {
+  useAnimatedScrollHandler,
+  useAnimatedStyle,
+  useSharedValue,
+} from 'react-native-reanimated';
 
 const dummyHeros = [
   {
@@ -31,87 +33,85 @@ const dummyHeros = [
     color: '#00ff00',
   },
 ];
-
 export default function Index() {
 
-  const { data: articles, isLoading, isError, error } = useQuery({
+  const {
+    data: articles,
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
     queryKey: ['articles'],
-    queryFn: getArticles
-  })
+    queryFn: getArticles,
+  });
 
-  const [showOverlay, setShowOverlay] = useMMKVBoolean(VAPI_OVERLAY_ID)
-
-
+  const [showOverlay, setShowOverlay] = useState(storage.getBoolean(VAPI_OVERLAY_ID) ?? false)
+  const headerHeight = useHeaderHeight();
   const scrollOffset = useSharedValue(0);
   const scrollHandler = useAnimatedScrollHandler({
     onScroll: (event) => {
       if (event.contentOffset.y > 50) {
         scrollOffset.value = 50 - event.contentOffset.y;
+      } else {
+        scrollOffset.value = 0;
       }
-      else {
-        scrollOffset.value = 0
-      }
-    }
+    },
   });
 
   const scrollStyle = useAnimatedStyle(() => {
     return {
-      transform: [{ translateY: scrollOffset.value}]
-    }
-  })
-
+      transform: [{ translateY: scrollOffset.value }],
+    };
+  });
 
   if (isLoading) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size='large'>
-          <Text>Loading articles ...</Text>
-        </ActivityIndicator>
+        <ActivityIndicator size="large" />
+        <Text>Loading articles...</Text>
       </View>
-    )
+    );
   }
 
   if (isError) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size='large'>
-          <Text>Error loading articles: {error instanceof Error ? error.message : 'Unknown '}</Text>
-        </ActivityIndicator>
+        <Text>
+          Error loading articles: {error instanceof Error ? error.message : 'Unknown error'}
+        </Text>
       </View>
-    )
+    );
   }
-
 
   return (
     <>
-    {showOverlay && <VapiOverlay />}
-      <Animated.ScrollView 
-        horizontal 
-        showsHorizontalScrollIndicator={false} 
-        contentContainerClassName="flex-1 flex-row items-center p-4 gap-6"
-        className='absolute top-0 bg-dark h-14 w-full'
-        style={scrollStyle}
-        >
+      {showOverlay && <VapiOverlay />}
+      <Animated.ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerClassName="flex-1 flex-row items-center px-4 py-4 gap-6"
+        className="absolute top-[125px] left-0 w-full bg-dark h-14"
+        style={[scrollStyle]}>
         <View className="flex-row items-center">
           <Ionicons name="location-outline" size={20} className="text-white" />
-          <Text className="text-white text-lg font-bold">dddxz</Text>
+          <Text className="text-white text-lg font-bold">48163</Text>
         </View>
-        {['Alexa Lists', 'Prime', 'Video', 'Music'].map(item => (
+        {['Alexa Lists', 'Prime', 'Video', 'Musik'].map((item) => (
           <TouchableOpacity key={item}>
-            <Text className="text-white text-md font-semibold">
-              {item}
-            </Text>
+            <Text className="text-white text-md font-semibold">{item}</Text>
           </TouchableOpacity>
         ))}
       </Animated.ScrollView>
 
-      <Animated.FlatList 
+      <Animated.FlatList
+        onScroll={scrollHandler}
         scrollEventThrottle={16}
         data={[1]}
         style={{ zIndex: -1 }}
-        contentContainerStyle={{ paddingTop: 48}}
-        ListHeaderComponent={() => <>
-           <ScrollView
+        ListHeaderComponent={() => (
+          <>
+            {/* Hero banner */}
+            <ScrollView
               horizontal
               pagingEnabled
               showsHorizontalScrollIndicator={false}
@@ -130,9 +130,8 @@ export default function Index() {
                 </View>
               ))}
             </ScrollView>
-        </> 
-
-        }
+          </>
+        )}
         renderItem={() => (
           <View className="mx-4">
             {articles && (
@@ -143,7 +142,7 @@ export default function Index() {
                   <Text className="text-2xl font-bold mb-4">Top picks for you</Text>
                 )}
                 renderItem={({ item }) => (
-                  <Link href={`/(tabs)/${item.id}`} asChild style={{ marginBottom: 4 }}>
+                  <Link href={`/(tabs)/${item.id}`} asChild style={{ marginBottom: 10 }}>
                     <TouchableOpacity className="flex-row items-center gap-4 flex-wrap">
                       <Image source={{ uri: item.imageUrl }} className="rounded-lg w-28 h-28" />
                       <View className="flex-1">
@@ -157,8 +156,8 @@ export default function Index() {
             )}
           </View>
         )}
+        contentContainerStyle={{ paddingTop: 112 }}
       />
     </>
- 
   );
 }
