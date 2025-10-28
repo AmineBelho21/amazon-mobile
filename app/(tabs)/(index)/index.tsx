@@ -15,7 +15,7 @@ import {
   ScrollView,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
 import Animated, {
   useAnimatedScrollHandler,
@@ -155,6 +155,7 @@ export default function Index() {
               />
             )}
           </View>
+          
         )}
         contentContainerStyle={{ paddingTop: 112 }}
       />

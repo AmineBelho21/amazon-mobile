@@ -53,3 +53,5 @@ yarn-error.*
 
 # Example or temporary files
 app-example
+
+.env.local

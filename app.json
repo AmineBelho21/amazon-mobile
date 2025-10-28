@@ -13,8 +13,10 @@
       "bundleIdentifier": "com.anonymous.amazonmobile",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
-        "NSAllowsArbitraryLoads": true, 
-        "UIBackgroundModes": ["voip"],
+        "NSAllowsArbitraryLoads": true,
+        "UIBackgroundModes": [
+          "voip"
+        ],
         "NSCameraUsageDescription": "This app uses the camera to let user put a photo in his profile page.",
         "NSMicrophoneUsageDescription": "This app uses the microphone to let user make a call."
       }
@@ -50,7 +52,15 @@
       ],
       "expo-build-properties",
       "expo-secure-store",
-      "expo-font"
+      "expo-font",
+      [
+        "@sentry/react-native/expo",
+        {
+          "url": "https://sentry.io/",
+          "project": "amazon",
+          "organization": "fast-5f"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
