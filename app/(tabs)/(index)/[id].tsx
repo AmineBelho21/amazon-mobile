@@ -1,27 +1,76 @@
+import Rufus from '@/components/Rufus';
 import SearchBar from '@/components/SearchBar';
 import VapiOverlay from '@/components/VapiOverlay';
 import { VAPI_OVERLAY_ID } from '@/hooks/useVapi';
 import { storage } from '@/storage/mmkv';
 import { getArticleById } from '@/utils/api';
 import { Ionicons } from '@expo/vector-icons';
+import BottomSheet, { BottomSheetScrollView, BottomSheetView } from '@gorhom/bottom-sheet';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { useQuery } from '@tanstack/react-query';
 import { Stack, useLocalSearchParams } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
-
+import Animated, { useAnimatedReaction, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 
 const MOCK_RATING = 4.5;
 const MOCK_REVIEWS = 1193;
 const MOCK_BRAND = 'Expo';
 const MOCK_PRIME = true;
 
+const SUGGESTED_PHRASES = [
+  'What do customers say?',
+  'What colours does it come in?',
+  'What is the size?',
+  'What is the weight?',
+  'What is the material?',
+  'What is the care instructions?',
+  'What is the warranty?',
+  'What is the return policy?',
+  'What is the shipping policy?',
+];
+
+const AnimatedBottomSheetScrollView = Animated.createAnimatedComponent(BottomSheetScrollView);
+const AnimatedBottomSheetView = Animated.createAnimatedComponent(BottomSheetView);
 
 const Page = () => {
   const { id } = useLocalSearchParams<{ id: string }>();
   const [showOverlay, setShowOverlay] = useState(storage.getBoolean(VAPI_OVERLAY_ID) ?? false)
   const headerHeight = useHeaderHeight();
+  const bottomSheetRef = useRef<BottomSheet>(null);
+  const snapPoints = useMemo(() => ['10%', '25%', '50%'], [])
+  
+  
+  const currentPosition = useSharedValue(0);
+  const showRufus = useSharedValue(true)
 
+  useAnimatedReaction(
+    () => currentPosition,
+    (position) => {
+      showRufus.value = position.value > 0 && position.value < 600;
+    }
+  );
+
+  const rufusStyles = useAnimatedStyle(() => {
+    return {
+      display: showRufus.value ? 'flex' : 'none'
+    }
+  })
+
+  const phrasesStyles = useAnimatedStyle(() => {
+    return {
+      display: showRufus.value ? 'none' : 'flex'
+    }
+  })
+
+  useEffect(() => {
+    setTimeout(() => {
+      bottomSheetRef.current?.snapToIndex(0, {
+        velocity: 0,
+        overshootClamping: false,
+      });
+    }, 1300);
+  }, []);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ['article', id],
@@ -54,6 +103,8 @@ const Page = () => {
   }
 
   const onAddToCart = () => { }
+  const onPhrasePress = (phrase: string) => { }
+
 
 
   return (
@@ -110,6 +161,48 @@ const Page = () => {
           <Text className="text-[#222] font-bold text-base">Buy Now</Text>
         </TouchableOpacity>
       </ScrollView>
+
+      <BottomSheet
+        ref={bottomSheetRef}
+        snapPoints={snapPoints}
+        enablePanDownToClose
+        animateOnMount={false}
+        enableDynamicSizing={false}
+        enableContentPanningGesture={false}
+        animatedPosition={currentPosition}
+        // index={-1}
+        style={{
+          boxShadow: '0 0 10px 0 rgba(0, 0, 0, 0.2)',
+          borderTopLeftRadius: 20,
+          borderTopRightRadius: 20,
+        }}>
+         <AnimatedBottomSheetView
+          style={rufusStyles}>
+          <View className='flex-row items-center px-4 border-b border-gray-200 pb-2'>
+            <TouchableOpacity onPress={() => bottomSheetRef.current?.snapToIndex(0)}>
+              <Ionicons name='close' size={24} className='text-gray-500' />
+            </TouchableOpacity>
+            <Text className='text-2xl font-bold text-center flex-1'>Rufus AI</Text>
+          </View>
+          <Rufus />
+        </AnimatedBottomSheetView> 
+
+        <AnimatedBottomSheetScrollView 
+           horizontal 
+           showHorizontalScrollIndicator={false}
+           style={phrasesStyles}
+           contentContainerClassName="gap-2 pl-4">
+           {SUGGESTED_PHRASES.map((phrase, idx) => (
+             <TouchableOpacity
+               key={idx}
+               className="bg-blue-100 px-3 py-2 rounded-full mb-2 h-10"
+               activeOpacity={0.7}
+               onPress={() => onPhrasePress(phrase)}>
+               <Text className="text-blue-700 font-medium text-sm">{phrase}</Text>
+             </TouchableOpacity>
+          ))}
+        </AnimatedBottomSheetScrollView>
+      </BottomSheet>
     </View>
   )
 }
