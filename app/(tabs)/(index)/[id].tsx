@@ -4,10 +4,12 @@ import VapiOverlay from '@/components/VapiOverlay';
 import { VAPI_OVERLAY_ID } from '@/hooks/useVapi';
 import { storage } from '@/storage/mmkv';
 import { getArticleById } from '@/utils/api';
+import { useCartStore } from '@/utils/cartStore';
 import { Ionicons } from '@expo/vector-icons';
 import BottomSheet, { BottomSheetScrollView, BottomSheetView } from '@gorhom/bottom-sheet';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { useQuery } from '@tanstack/react-query';
+import * as Haptics from 'expo-haptics';
 import { Link, Stack, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
@@ -39,6 +41,7 @@ const Page = () => {
   const headerHeight = useHeaderHeight();
   const bottomSheetRef = useRef<BottomSheet>(null);
   const snapPoints = useMemo(() => ['10%', '25%', '50%'], [])
+  const { addArticle } = useCartStore()
   
   
   const currentPosition = useSharedValue(0);
@@ -102,7 +105,10 @@ const Page = () => {
     )
   }
 
-  const onAddToCart = () => { }
+  const onAddToCart = () => {
+    addArticle(data)
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+   }
   const onPhrasePress = (phrase: string) => { }
 
 
