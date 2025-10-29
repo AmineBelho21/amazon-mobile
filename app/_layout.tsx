@@ -8,6 +8,7 @@ import * as Sentry from '@sentry/react-native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Stack, useRouter } from "expo-router";
 import { TouchableOpacity, useColorScheme } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 Sentry.init({
   dsn: 'https://f4afa420b350cc065646f4b1c8996fa0@o4510098045599744.ingest.de.sentry.io/4510267792228432',
@@ -95,9 +96,11 @@ const RootLayout = () => {
     <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
       <ClerkLoaded>
         <QueryClientProvider client={queryClient}>
+            <GestureHandlerRootView style={{flex: 1}}>
         <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
           <InitialLayout />
         </ThemeProvider>
+        </GestureHandlerRootView>
         </QueryClientProvider>
       </ClerkLoaded>
     </ClerkProvider>
