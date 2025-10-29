@@ -8,7 +8,7 @@ import { Ionicons } from '@expo/vector-icons';
 import BottomSheet, { BottomSheetScrollView, BottomSheetView } from '@gorhom/bottom-sheet';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { useQuery } from '@tanstack/react-query';
-import { Stack, useLocalSearchParams } from 'expo-router';
+import { Link, Stack, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { useAnimatedReaction, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
@@ -147,9 +147,12 @@ const Page = () => {
         <Text className="text-[15px] text-[#333] mx-4 mb-4">{data.description}</Text>
 
         {/* View in 3D */}
-        <TouchableOpacity className="flex-1 mx-10 rounded-full items-center justify-center py-4 border border-blue-500 ">
-          <Text className='text-blue-500 font-bold text-base'>View in 3D</Text>
-        </TouchableOpacity>
+        <Link href={`/(modal)/(3d)/${id}`} asChild>
+          <TouchableOpacity className="flex-1 mx-10 rounded-full items-center justify-center py-4 border border-blue-500 ">
+            <Text className="text-blue-500 font-bold text-base">View in 3D</Text>
+          </TouchableOpacity>
+        </Link>
+
 
         {/* Bottom Buttons */}
         <TouchableOpacity
