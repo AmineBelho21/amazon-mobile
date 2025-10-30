@@ -1,6 +1,7 @@
 import CustomTabBar from '@/components/navigation/CustomTabBar'
 import { StyledTabs } from '@/components/navigation/tabs'
 import SearchBar from '@/components/SearchBar'
+import { useCartStore } from '@/utils/cartStore'
 import { Ionicons } from '@expo/vector-icons'
 import { Tabs, useRouter } from 'expo-router'
 import React from 'react'
@@ -8,6 +9,7 @@ import { Text, View } from 'react-native'
 
 const Layout = () => {
   const router = useRouter();
+  const { count } = useCartStore() 
   
   return (
     <StyledTabs headerClassName="bg-dark text-white" tabBar={(props) => <CustomTabBar {...props} />} >
@@ -37,7 +39,7 @@ const Layout = () => {
             <View className="relative">
               <Ionicons name="cart-outline" color={color} size={size} />
               <View className="absolute -top-2 h-4 w-4 -right-4">
-                <Text className="text-md font-bold"></Text>
+                <Text className="text-md font-bold">{count}</Text>
               </View>
             </View>
           ),
