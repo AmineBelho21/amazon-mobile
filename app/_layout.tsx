@@ -5,9 +5,11 @@ import { tokenCache } from '@clerk/clerk-expo/token-cache';
 import { Ionicons } from '@expo/vector-icons';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import * as Sentry from '@sentry/react-native';
+import { StripeProvider } from '@stripe/stripe-react-native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import * as Linking from 'expo-linking';
 import { Stack, useRouter } from "expo-router";
-import { TouchableOpacity, useColorScheme } from 'react-native';
+import { Text, TouchableOpacity, useColorScheme } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 Sentry.init({
@@ -24,11 +26,13 @@ Sentry.init({
   replaysSessionSampleRate: 1,
   replaysOnErrorSampleRate: 1,
   integrations: [Sentry.mobileReplayIntegration()],
-  _experiments: { enableLogs: true}
+  _experiments: { enableLogs: true }
 
   // uncomment the line below to enable Spotlight (https://spotlightjs.com)
   // spotlight: __DEV__,
 });
+
+const queryClient = new QueryClient();
 
 const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!;
 if (!publishableKey) {
@@ -37,14 +41,6 @@ if (!publishableKey) {
   );
 }
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: false, 
-      staleTime: 1000 * 60 * 5,
-    }
-  }
-});
 
 const InitialLayout = () => {
   const router = useRouter();
@@ -83,6 +79,20 @@ const InitialLayout = () => {
           },
         }}
       />
+
+      <Stack.Screen
+        name="(modal)/checkout"
+        options={{
+          title: 'Amazon Checkout',
+          presentation: 'fullScreenModal',
+          animation: 'slide_from_bottom',
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => router.dismiss()}>
+              <Text className="text-gray-200">Cancel</Text>
+            </TouchableOpacity>
+          ),
+        }}
+      />
     </StyledStack>
   )
 };
@@ -96,11 +106,15 @@ const RootLayout = () => {
     <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
       <ClerkLoaded>
         <QueryClientProvider client={queryClient}>
-            <GestureHandlerRootView style={{flex: 1}}>
-        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-          <InitialLayout />
-        </ThemeProvider>
-        </GestureHandlerRootView>
+          <GestureHandlerRootView style={{ flex: 1 }}>
+            <StripeProvider
+              publishableKey={process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY!}
+              urlScheme={Linking.createURL('/').split(':')[0]}>
+              <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+                <InitialLayout />
+              </ThemeProvider>
+            </StripeProvider>
+          </GestureHandlerRootView>
         </QueryClientProvider>
       </ClerkLoaded>
     </ClerkProvider>

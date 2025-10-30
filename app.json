@@ -60,6 +60,13 @@
           "project": "amazon",
           "organization": "fast-5f"
         }
+      ], 
+      [
+        "@stripe/stripe-react-native",
+        {
+          "merchantIdentifier": "123",
+          "enableGooglePay": true
+        }
       ]
     ],
     "experiments": {
