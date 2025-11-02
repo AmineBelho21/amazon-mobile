@@ -37,6 +37,11 @@ export const getArticleById = async (id: number): Promise<Article> => {
 };
 
 export const createOrder = async (items: (Article & { quantity: number })[], token: string) => {
+  console.log('📤 API: Creating order...');
+  console.log('API URL:', `${API_URL}/orders`);
+  console.log('Items:', items.map((item) => ({ articleId: item.id, quantity: item.quantity })));
+  console.log('Token (first 20 chars):', token.substring(0, 20) + '...');
+  
   const response = await fetch(`${API_URL}/orders`, {
     method: 'POST',
     body: JSON.stringify({
@@ -47,10 +52,26 @@ export const createOrder = async (items: (Article & { quantity: number })[], tok
       Authorization: `Bearer ${token}`,
     },
   });
-  return response.json();
+  
+  console.log('📥 API: Order response status:', response.status);
+  
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('❌ API: Order creation failed:', errorText);
+    throw new Error(`Failed to create order: ${response.status} - ${errorText}`);
+  }
+  
+  const data = await response.json();
+  console.log('✅ API: Order created:', data);
+  return data;
 };
 
 export const createPaymentIntent = async (amount: number, email: string) => {
+  console.log('📤 API: Creating payment intent...');
+  console.log('API URL:', `${API_URL}/orders/payment-sheet`);
+  console.log('Amount:', amount);
+  console.log('Email:', email);
+  
   const response = await fetch(`${API_URL}/orders/payment-sheet`, {
     method: 'POST',
     body: JSON.stringify({ amount, currency: 'usd', email }),
@@ -58,14 +79,39 @@ export const createPaymentIntent = async (amount: number, email: string) => {
       'Content-Type': 'application/json',
     },
   });
-  return response.json();
+  
+  console.log('📥 API: Payment intent response status:', response.status);
+  
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('❌ API: Payment intent creation failed:', errorText);
+    throw new Error(`Failed to create payment intent: ${response.status} - ${errorText}`);
+  }
+  
+  const data = await response.json();
+  console.log('✅ API: Payment intent created');
+  return data;
 };
 
 export const getOrders = async (token: string): Promise<Order[]> => {
+  console.log('📤 API: Fetching orders...');
+  console.log('Token (first 20 chars):', token.substring(0, 20) + '...');
+  
   const response = await fetch(`${API_URL}/orders`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
-  return response.json();
+  
+  console.log('📥 API: Orders response status:', response.status);
+  
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('❌ API: Failed to fetch orders:', errorText);
+    throw new Error(`Failed to fetch orders: ${response.status} - ${errorText}`);
+  }
+  
+  const data = await response.json();
+  console.log('✅ API: Orders fetched:', data.length, 'orders');
+  return data;
 };
