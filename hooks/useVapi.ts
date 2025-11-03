@@ -1,8 +1,8 @@
 import {
-    Message,
-    MessageRoleEnum,
-    MessageTypeEnum,
-    TranscriptMessageTypeEnum,
+  Message,
+  MessageRoleEnum,
+  MessageTypeEnum,
+  TranscriptMessageTypeEnum,
 } from '@/utils/conversation.types';
 import { useUser } from '@clerk/clerk-react';
 import Vapi from '@vapi-ai/react-native';
@@ -68,22 +68,39 @@ import { useEffect, useState } from 'react';
   
     const startCall = async (type?: 'assistant' | 'workflow') => {
       setCallStatus(CALL_STATUS.CONNECTING);
-  
-      if (type === 'assistant') {
-        vapi.start(process.env.EXPO_PUBLIC_VAPI_ASSISTANT_ID, {
-          variableValues: {
-            name: user?.firstName,
-          },
-        });
-      } else {
-        const id = process.env.EXPO_PUBLIC_VAPI_WORKFLOW_ID;
-        await vapi.start(null, {}, null, id, {
-          variableValues: {
-            name: user?.firstName,
-          },
-        });
+    
+      const assistantId = process.env.EXPO_PUBLIC_VAPI_ASSISTANT_ID;
+      const workflowId = process.env.EXPO_PUBLIC_VAPI_WORKFLOW_ID;
+    
+      if (!assistantId) {
+        console.error('❌ Missing VAPI Assistant ID');
+        setCallStatus(CALL_STATUS.INACTIVE);
+        return;
+      }
+    
+      try {
+        if (type === 'workflow') {
+          // ✅ Pass assistantId first, workflowId last (no nulls)
+          console.log('Assistant ID:', process.env.EXPO_PUBLIC_VAPI_ASSISTANT_ID);
+console.log('Workflow ID:', process.env.EXPO_PUBLIC_VAPI_WORKFLOW_ID);
+
+          await vapi.start(assistantId, {}, undefined, workflowId, {
+            variableValues: { name: user?.firstName },
+          });
+        } else {
+          await vapi.start(assistantId, {
+            variableValues: { name: user?.firstName },
+          });
+        }
+      } catch (err) {
+        console.error('VAPI start error:', err);
+        setCallStatus(CALL_STATUS.INACTIVE);
       }
     };
+    
+
+    
+    
   
     const stop = () => {
       setCallStatus(CALL_STATUS.FINISHED);
